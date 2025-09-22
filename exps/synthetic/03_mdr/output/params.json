@@ -1,1 +1,26 @@
-{"emc": {"lambda_f": 0.92, "lambda_s": 0.97, "beta": 0.0, "delta_f": 0.2, "delta_s": 0.05, "eta_f": 0.35000000000000003, "eta_s": 0.3, "tau": 25}, "clustream": {"n_macro_clusters": 6, "max_micro_clusters": 72, "micro_cluster_r_factor": 4, "time_window": 1299, "time_gap": 129}, "dbstream": {"clustering_threshold": 1.121932016049972, "fading_factor": 0.0072802405653372955, "cleanup_interval": 13, "intersection_factor": 0.15525044304863564, "minimum_weight": 6.557651990806326}}
+{
+    "clustream": {
+        "max_micro_clusters": 72,
+        "micro_cluster_r_factor": 4,
+        "n_macro_clusters": 6,
+        "time_gap": 129,
+        "time_window": 1299
+    },
+    "dbstream": {
+        "cleanup_interval": 13,
+        "clustering_threshold": 1.121932016049972,
+        "fading_factor": 0.0072802405653372955,
+        "intersection_factor": 0.15525044304863564,
+        "minimum_weight": 6.557651990806326
+    },
+    "emc": {
+        "beta": 0.0,
+        "delta_f": 0.32,
+        "delta_s": 0.1,
+        "eta_f": 0.3,
+        "eta_s": 0.3,
+        "lambda_f": 0.92,
+        "lambda_s": 0.95,
+        "tau": 30
+    }
+}

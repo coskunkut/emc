@@ -1,6 +1,7 @@
-alg,how,cps,ari
-EMC,online,not given,$0.85\pm0.07$
+alg,op_type,cps,ari
+EMC,online,not given,$0.86\pm0.05$
 CluStream,online,not given,$0.05\pm0.03$
 DBStream,online,not given,$0.05\pm0.03$
 EPSTM,offline,given (true),$0.98\pm0.06$
 EPSTM,offline,given (imperfect),$0.44\pm0.26$
+HMM,offline,not given,$0.25\pm0.18$
