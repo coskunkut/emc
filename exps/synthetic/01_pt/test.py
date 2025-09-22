@@ -1,3 +1,4 @@
+import copy
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
@@ -8,13 +9,14 @@ import pandas as pd
 from cycler import cycler
 from tqdm.auto import tqdm
 
-from emc.estimator.EMC import EMC
+from emc.estimator.EMC import EMCLin as EMC
 from emc.estimator.MC_ADWIN import MC_ADWIN
 from emc.estimator.MC_SW import MC_SW
 from emc.utils.evaluator import evaluate_estimates
 from emc.utils.loader import load_json_file, load_pickle_file
 from emc.utils.paths import get_paths
 from emc.utils.plot import get_mpl_conf_path, set_size
+from emc.utils.sparse import sparse_to_dense
 
 # get paths
 paths = get_paths()
@@ -31,7 +33,12 @@ params_path = os.path.join(output_dir_path, "params.json")
 params = load_json_file(params_path)
 if params is not None:
     print(f"{params_path} loaded")
-    # print(params)
+
+methods_to_run = [
+    "emc",
+    "mc_adwin",
+    "mc_sw"
+]
 
 def execute_single_run(run_desc):
 
@@ -40,69 +47,76 @@ def execute_single_run(run_desc):
     true_matrices = [run_params["subprocesses"][sp_id].transition_matrix for sp_id in run_params["subprocess_sequence"]]
 
     # EMC
-    emc_ins = EMC(
-        alpha=data["meta"]["alp_car"],
-        order=data["meta"]["k"],
-        lambda_=[params["emc"]["lambda_f"], params["emc"]["lambda_s"]],
-        beta=params["emc"]["beta"],
-        delta=[params["emc"]["delta_f"], params["emc"]["delta_s"]],
-        eta=[params["emc"]["eta_f"], params["emc"]["eta_s"]],
-        tau=params["emc"]["tau"],
-    )
-    emc_ins.process_sequence(run_params["symbol_sequence"], progress=False)
-    emc_mae, emc_ae = evaluate_estimates(
-        estimates=emc_ins.P_exp_hist,
-        true_matrices=true_matrices,
-        regime_lengths=run_params["regime_lengths"],
-        index_symbol_map=emc_ins.index_symbol_map
-    )
-    result_dict["emc:mae"] = emc_mae
-    result_dict["emc:ae"] = emc_ae
-
-    # run MC-ADWIN
-    mc_adwin_ins = MC_ADWIN(
-        alpha=data["meta"]["alp_car"],
-        order=data["meta"]["k"],
-        delta=params["mc_adwin"]["delta"],
-        clock=params["mc_adwin"]["clock"],
-        max_buckets=params["mc_adwin"]["max_buckets"],
-        min_window_length=params["mc_adwin"]["min_window_length"],
-        grace_period=params["mc_adwin"]["grace_period"],
-    )
-    mc_adwin_ins.process_sequence(run_params["symbol_sequence"])
-    mc_adwin_mae, mc_adwin_ae = evaluate_estimates(
-        estimates=mc_adwin_ins.estimates,
-        true_matrices=true_matrices,
-        regime_lengths=run_params["regime_lengths"],
-        index_symbol_map=mc_adwin_ins.index_symbol_map
-    )
-    result_dict["mc_adwin:mae"] = mc_adwin_mae
-    result_dict["mc_adwin:ae"] = mc_adwin_ae
-
-    # run MC_SW
-    window_sizes = [100, 328, 500]
-    for window_size in window_sizes:
-        mc_sw_ins = MC_SW(
-            order=data["meta"]["k"],
+    if "emc" in methods_to_run:
+        emc_ins = EMC(
             alpha=data["meta"]["alp_car"],
-            window_size=window_size
+            order=data["meta"]["k"],
+            lambda_=[params["emc"]["lambda_f"], params["emc"]["lambda_s"]],
+            beta=params["emc"]["beta"],
+            delta=[params["emc"]["delta_f"], params["emc"]["delta_s"]],
+            eta=[params["emc"]["eta_f"], params["emc"]["eta_s"]],
+            tau=params["emc"]["tau"],
         )
-        mc_sw_ins.process_sequence(run_params["symbol_sequence"])
-        mc_sw_mae, mc_sw_ae = evaluate_estimates(
-            estimates=mc_sw_ins.estimates,
+        emc_ps = []
+        for o in run_params["symbol_sequence"]:
+            emc_ins.process_symbol(o)
+            emc_p_dense = sparse_to_dense(sparse_matrix=emc_ins.P_exp, k=emc_ins.order, alpha=data["meta"]["alp_car"])
+            emc_ps.append(emc_p_dense)
+        emc_mae, emc_ae = evaluate_estimates(
+            estimates=emc_ps,
             true_matrices=true_matrices,
             regime_lengths=run_params["regime_lengths"],
-            index_symbol_map=mc_sw_ins.index_symbol_map
+            index_symbol_map=emc_ins.index_symbol_map
         )
-        result_dict[f"mc_sw_{window_size}:mae"] = mc_sw_mae
-        result_dict[f"mc_sw_{window_size}:ae"] = mc_sw_ae
+        result_dict["emc:mae"] = emc_mae
+        result_dict["emc:ae"] = emc_ae
+
+    # run MC-ADWIN
+    if "mc_adwin" in methods_to_run:
+        mc_adwin_ins = MC_ADWIN(
+            alpha=data["meta"]["alp_car"],
+            order=data["meta"]["k"],
+            delta=params["mc_adwin"]["delta"],
+            clock=params["mc_adwin"]["clock"],
+            max_buckets=params["mc_adwin"]["max_buckets"],
+            min_window_length=params["mc_adwin"]["min_window_length"],
+            grace_period=params["mc_adwin"]["grace_period"],
+        )
+        mc_adwin_ins.process_sequence(run_params["symbol_sequence"])
+        mc_adwin_mae, mc_adwin_ae = evaluate_estimates(
+            estimates=mc_adwin_ins.estimates,
+            true_matrices=true_matrices,
+            regime_lengths=run_params["regime_lengths"],
+            index_symbol_map=mc_adwin_ins.index_symbol_map
+        )
+        result_dict["mc_adwin:mae"] = mc_adwin_mae
+        result_dict["mc_adwin:ae"] = mc_adwin_ae
+
+    # run MC_SW
+    if "mc_sw" in methods_to_run:
+        window_sizes = [100, params["mc_sw"]["window_size"], 500]
+        for window_size in window_sizes:
+            mc_sw_ins = MC_SW(
+                order=data["meta"]["k"],
+                alpha=data["meta"]["alp_car"],
+                window_size=window_size
+            )
+            mc_sw_ins.process_sequence(run_params["symbol_sequence"])
+            mc_sw_mae, mc_sw_ae = evaluate_estimates(
+                estimates=mc_sw_ins.estimates,
+                true_matrices=true_matrices,
+                regime_lengths=run_params["regime_lengths"],
+                index_symbol_map=mc_sw_ins.index_symbol_map
+            )
+            result_dict[f"mc_sw_{window_size}:mae"] = mc_sw_mae
+            result_dict[f"mc_sw_{window_size}:ae"] = mc_sw_ae
 
     return result_dict
 
 # run tasks in parallel
 test_runs = data["test"]
 tasks = [(k,p) for k,p in test_runs.items()]
-with ProcessPoolExecutor(max_workers=100) as executor:
+with ProcessPoolExecutor(max_workers=20) as executor:
     futures = [executor.submit(execute_single_run, task) for task in tasks]
     results = []
     for future in tqdm(as_completed(futures), total=len(futures)):
@@ -136,6 +150,7 @@ Path(results_dir_path).mkdir(parents=True, exist_ok=True)
 results_path = os.path.join(results_dir_path, "syn_pt_mae.csv")
 results_df_frm.to_csv(results_path, index=False, header=True, float_format="%.3f")
 print(f"results saved: {results_path}")
+print(results_df_frm)
 
 # visualize results
 results_df = pd.DataFrame.from_records(results)
@@ -156,7 +171,7 @@ plt.rcParams.update({
         cycler(linestyle=["-","--","-.",":","-","--","-.",":","-","--"])
     )
 })
-size_conf = {"width":"tpami", "aspect_ratio":2, "fraction": 0.5}
+size_conf = {"width":"tpami_half", "aspect_ratio":2.25, "fraction": 1}
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=set_size(**size_conf))
 
 # plot errors
