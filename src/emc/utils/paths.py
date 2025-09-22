@@ -8,6 +8,7 @@ def get_paths():
 		"root": os.path.abspath(Path(__file__).parent.parent.parent.parent)
 	}
 	paths["exps"] = os.path.join(paths["root"], "exps")
+	paths["default_params"] = os.path.join(paths["root"], "src", "emc", "resources", "default_params")
 	paths["config"] = {
 		"mpl": os.path.join(paths["root"], "src", "emc", "resources", "mpl")
 	}
