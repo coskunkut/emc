@@ -1,1 +1,27 @@
-{"emc": {"order": 2, "lambda_f": 0.9400547490619048, "lambda_s": 0.9622342055101375, "beta": 0.0028192566480107063, "delta_f": 0.14920454253171994, "delta_s": 0.08547947418056387, "eta_f": 0.07162751352521785, "eta_s": 0.21230449802986406, "tau": 25}}
+{
+    "clustream": {
+        "max_micro_clusters": 88,
+        "micro_cluster_r_factor": 6,
+        "n_macro_clusters": 10,
+        "time_gap": 68,
+        "time_window": 1119
+    },
+    "dbstream": {
+        "cleanup_interval": 18,
+        "clustering_threshold": 1.6640703220742883,
+        "fading_factor": 0.06992694914284209,
+        "intersection_factor": 0.7994817018884312,
+        "minimum_weight": 6.268368951423003
+    },
+    "emc": {
+        "beta": 0.0037,
+        "delta_f": 0.44,
+        "delta_s": 0.04,
+        "eta_f": 0.04,
+        "eta_s": 0.26,
+        "lambda_f": 0.94,
+        "lambda_s": 0.95,
+        "order": 2,
+        "tau": 74
+    }
+}
