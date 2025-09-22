@@ -1,0 +1,9 @@
+method,op_type,cps,ari
+EMC (Ours),online,not given,0.90
+EMC (Ours) ($\phi=1$),online,not given,0.91
+CluStream,online,not given,0.00
+DBStream,online,not given,0.01
+BOSD,hybrid,given,0.07
+EPSTM,offline,given (true),0.55
+EPSTM,offline,given (imperfect),0.16
+HMM,offline,not given,0.03

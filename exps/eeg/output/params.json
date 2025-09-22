@@ -1,1 +1,33 @@
-{"emc": {"order": 1, "lambda_f": 0.93, "lambda_s": 0.96, "beta": 0.001, "delta_f": 0.3, "delta_s": 0.15000000000000002, "eta_f": 0.2, "eta_s": 0.45, "tau": 25}}
+{
+    "clustream": {
+        "max_micro_clusters": 92,
+        "micro_cluster_r_factor": 3,
+        "n_macro_clusters": 5,
+        "time_gap": 90,
+        "time_window": 1160
+    },
+    "dbstream": {
+        "cleanup_interval": 1,
+        "clustering_threshold": 9.566059222282348,
+        "fading_factor": 0.005827004949859646,
+        "intersection_factor": 0.5646080492849067,
+        "minimum_weight": 3.1156724730038814
+    },
+    "emc": {
+        "order": 1,
+        "lambda_f": 0.91,
+        "lambda_s": 0.98,
+        "beta": 0.00017,
+        "delta_f": 0.16,
+        "delta_s": 0.1,
+        "eta_f": 0.07,
+        "eta_s": 0.47,
+        "tau": 10
+    },
+    "epstm": {
+        "clustering_threshold": 0.1146,
+        "I": 0.7467,
+        "subsequence_length_limit": 3,
+        "subsequence_minimum_occurrence": 2
+    }
+}
