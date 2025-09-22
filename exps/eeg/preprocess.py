@@ -1,9 +1,7 @@
 import os
 import pickle
-from collections import Counter
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import mne
 import pandas as pd
 from pycrostates.cluster import ModKMeans
@@ -39,7 +37,15 @@ segmentation = ModK.predict(X_mne, factor=10)
 ms_seq = segmentation.labels
 
 # save data
-data = {"meta": {"n_clusters": n_clusters, "ch_names": ch_names}, "ms_seq": ms_seq, "Y": Y}
+data = {
+    "meta": {
+        "n_clusters": n_clusters,
+        "ch_names": ch_names
+    },
+    "X": X_mne.get_data().T,
+    "ms_seq": ms_seq,
+    "Y": Y
+}
 with open(os.path.join(output_dir_path, "data.pkl"), "wb") as file:
     pickle.dump(data, file)
 print(f"data saved: {output_dir_path}/data.pkl")
