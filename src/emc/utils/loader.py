@@ -107,7 +107,7 @@ def load_cwru_data(condition_sequence, points_per_condition):
     }
     paths = get_paths()
 
-    sample_id_seq = [cnd_id_map[i] for i in condition_sequence]
+    # sample_id_seq = [cnd_id_map[i] for i in condition_sequence]
     X = []
     change_points = [0]
     y_true = []
@@ -115,7 +115,11 @@ def load_cwru_data(condition_sequence, points_per_condition):
         sample_id = cnd_id_map[sample_cnd]
         data_path = os.path.join(paths["data"]["cwru"]["samples"], f"{sample_id}.mat")
         sample_data_raw = scipy.io.loadmat(data_path)
-        sample_data = sample_data_raw[get_cwru_sample_key(sample_id)].flatten()[:points_per_condition]
+        if isinstance(points_per_condition, list):
+            duration = points_per_condition[i]
+        elif isinstance(points_per_condition, int):
+            duration = points_per_condition
+        sample_data = sample_data_raw[get_cwru_sample_key(sample_id)].flatten()[:duration]
         X.extend(sample_data.tolist())
         change_points.append(len(X))
         y_true.extend([i]*len(sample_data))
