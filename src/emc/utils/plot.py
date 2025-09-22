@@ -55,8 +55,10 @@ def set_size(width, aspect_ratio=1.25, fraction=1):
 			width_pt = 468.3324
 		elif width == "lncp":
 			width_pt = 347.12354
-		elif width == "tpami":
-			width_pt = 504
+		elif width == "tpami_full":
+			width_pt = 516.0
+		elif width == "tpami_half":
+			width_pt = 252.0
 		elif width == "beamer":
 			width_pt = 307.28987
 		elif width == "beamer_169":
@@ -213,7 +215,7 @@ def plot_mode_transition(
 	subplots,
 	labels_true,
 	data,
-	deviation_history,
+	drift_scores,
 	labels_pred,
 	change_points,
 	cp_scale_coeff=1,
@@ -250,7 +252,7 @@ def plot_mode_transition(
 		axs[subplot_index].plot(labels_true, color="black")
 		axs[subplot_index].set_xticks(change_points)
 		axs[subplot_index].set_xticklabels([])
-		axs[subplot_index].set_ylabel("True\nModes")
+		axs[subplot_index].set_ylabel("True Modes")
 		if mode_id_to_label_map is not None:
 			axs[subplot_index].set_ylim(0.5, len(mode_id_to_label_map)+0.5)
 			axs[subplot_index].set_yticks(list(mode_id_to_label_map.keys()))
@@ -291,11 +293,11 @@ def plot_mode_transition(
 			)
 		subplot_index += 1
 
-	# plot deviation
-	if "deviation" in subplots:
-		axs[subplot_index].plot(deviation_history, color="black")
-		axs[subplot_index].set_ylabel("Deviation")
-		# axs[subplot_index].set_ylim(-0.1, np.max(deviation_history)+0.1)
+	# plot drift
+	if "drift_scores" in subplots:
+		axs[subplot_index].plot(drift_scores, color="black")
+		axs[subplot_index].set_ylabel("Drift")
+		# axs[subplot_index].set_ylim(-0.1, np.max(drift_scores)+0.1)
 		axs[subplot_index].set_xticks([int(cp/cp_scale_coeff) for cp in change_points])
 		axs[subplot_index].set_xticklabels([])
 		subplot_index += 1
@@ -313,26 +315,32 @@ def plot_mode_transition(
 		axs[subplot_index].set_yticks(list(set(labels_pred)))
 		if legend_text is not None: axs[subplot_index].legend(loc=legend_loc)
 
-		# plot deviation heatmap across discovered modes
-		uncertainty = np.repeat(deviation_history, cp_scale_coeff)
+		# plot drift heatmap across discovered modes
+		uncertainty = np.repeat(drift_scores, cp_scale_coeff)
+		# uncertainty[:200] *= 0.5 # for eeg
 		x = list(range(len(uncertainty)))
 		y_margin = np.max(labels_pred)*0.15
 		extent = [0, len(uncertainty), 1-y_margin, np.max(labels_pred)+y_margin]
+		norm = colors.PowerNorm(gamma=1.5, clip=True)
+		# norm = colors.PowerNorm(gamma=0.9, clip=True) # for eeg
 		im = axs[subplot_index].imshow(
 			uncertainty[np.newaxis,:],
 			cmap="Reds",
 			aspect="auto",
 			extent=extent,
 			# norm="linear",
-			vmin=0.05,
+			norm=norm,
+			# vmin=0.05,
+			# vmax=0.25,
 			interpolation="bilinear",
 			# interpolation_stage="rgba",
-			alpha=0.5,
+			alpha=0.8,
 			# zorder=4
 		)
 		# Add colorbar
 		cbar = fig.colorbar(im, ax=axs[subplot_index], pad=0.01)
 		cbar.set_ticks(np.arange(0, np.max(uncertainty), 0.1))
+		# cbar.set_ticks(np.arange(0, 0.25, 0.05))
 		cbar.ax.tick_params(labelsize=3, pad=1)
 		axs[subplot_index].grid()
 
