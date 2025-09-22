@@ -1,1 +1,38 @@
-{"emc": {"lambda_f": 0.91, "lambda_s": 0.95, "beta": 0.0, "delta_f": 0.3, "delta_s": 0.05, "eta_f": 0.35000000000000003, "eta_s": 0.35000000000000003, "tau": 75}, "adwin": {"delta": 0.016935654615453582, "clock": 21, "max_buckets": 36, "min_window_length": 28, "grace_period": 79}, "kswin": {"alpha": 0.004932801948450065, "window_size": 811, "stat_size": 211}, "pht": {"min_instances": 230, "delta": 0.03389615996260261, "threshold": 53.5094012793595, "alpha": 0.9928636378427051, "mode": "both"}}
+{
+    "adwin": {
+        "clock": 21,
+        "delta": 0.016935654615453582,
+        "grace_period": 79,
+        "max_buckets": 36,
+        "min_window_length": 28
+    },
+    "bocd": {
+        "alpha": 1.263970861452426,
+        "beta": 1.635424829966402,
+        "hazard_lambda": 800,
+        "kappa": 6.11885354882296,
+        "mu": 2.5
+    },
+    "emc": {
+        "beta": 0.0,
+        "delta_f": 0.44,
+        "delta_s": 0.08,
+        "eta_f": 0.44,
+        "eta_s": 0.34,
+        "lambda_f": 0.92,
+        "lambda_s": 0.95,
+        "tau": 75
+    },
+    "kswin": {
+        "alpha": 0.004932801948450065,
+        "stat_size": 211,
+        "window_size": 811
+    },
+    "pht": {
+        "alpha": 0.9928636378427051,
+        "delta": 0.03389615996260261,
+        "min_instances": 230,
+        "mode": "both",
+        "threshold": 53.5094012793595
+    }
+}
