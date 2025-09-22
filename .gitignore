@@ -56,3 +56,6 @@ MANIFEST
 # data
 data/
 **/output/data.pkl
+
+sandboxes
+exps/rev_sandbox/
