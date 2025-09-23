@@ -1,5 +1,9 @@
 # Evolving Markov Chains
 
+## Updates
+
+Update (Revision 2025-09): The revised implementation with reduced time complexity is available in the `rev1` branch.
+
 ## Introduction
 
 Evolving Markov Chains (EMC) is an online method for mode discovery and recognition.
